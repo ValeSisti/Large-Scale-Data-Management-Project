@@ -6,7 +6,7 @@
 
 - Ok we said that OrientDB uses an extension of SQL, so the first basic query that we may want to execute could be something like this:
     
-    ```cypher
+    ```sql
     SELECT * FROM Song WHERE name = 'Blinding Lights'
     ```
     
@@ -15,7 +15,7 @@
 
 - But we also said that OrientDB also introduces the MATCH clause, so an equivalent way for asking this query is this one:
     
-    ```cypher
+    ```sql
     MATCH 
     	{class: Song, as:s, where:(name = 'Blinding Lights')} 
     RETURN s
@@ -27,7 +27,7 @@
     
     If we want to obtain the exact same result as the select, we need to use the expand() function, that basically, if used on a record id, like in this case, it allows to expand the document pointed by that record id, so allowing us to retrieve all the information as before:
     
-    ```cypher
+    ```sql
     SELECT expand(s) FROM(
     		MATCH 
     			{class: Song, as:s, where:(name = 'Blinding Lights')} 
@@ -46,7 +46,7 @@ This was a very basic query, but now we may be interested for instance in retrie
     
     - One way is this one, so with an arrow notation
         
-        ```cypher
+        ```sql
         MATCH 
         	{class: Artist, as:a, where:(name='Avril Lavigne')}<-isSongOf-{class:Song, as:s}
         RETURN s.name ORDER BY s.popularity DESC
@@ -54,7 +54,7 @@ This was a very basic query, but now we may be interested for instance in retrie
         
     - The other euqivalent way is through the dot notation, in which we specify the function name, in this case in(), and also the specific edge class, that in this case is ‘isSongOf’
         
-        ```cypher
+        ```sql
         MATCH 
         	{class: Artist, as:a, where:(name='Avril Lavigne')}.in('isSongOf'){class:Song, as:s}
         RETURN s.name ORDER BY s.popularity DESC
@@ -63,7 +63,7 @@ This was a very basic query, but now we may be interested for instance in retrie
         - the in() of course is for specifying an ingoing edge, but there are also the functions out() and both() to specify an edge in the outgoing direction or in both directions respectively
     - Actually, we can use the in(), out() and both() functions basically everywhere, so we can perform the exact same query also with the SELECT, by exploiting these functions, so another equivalent way to do this is the following:
         
-        ```cypher
+        ```sql
         SELECT name FROM Song WHERE out('isSongOf').name = 'Avril Lavigne'
         ```
         
@@ -76,7 +76,7 @@ But of course we can define also a longer paths, so not only with one single rel
 
 - Find all songs contained in the Album ‘Meteora’ by Linkin Park, by showing also the record labels of Linkin Park.
     
-    ```cypher
+    ```sql
     MATCH 
     	{class:Song, as:s}-isSongInAlbum->{class:Album, as:al, where:(name='Meteora')}-isAlbumOf->{class:Artist, as:lp, where:(name = 'Linkin Park')}-hasLabel->{class:Label, as:l}-isLabelInGroup->{class:Group, as:gr}
     RETURN $pathElements
@@ -95,7 +95,7 @@ Ok but in this last query we simply defined a single path, so basically followin
 
 But actually, OrientDB also allows to specify not only a single path, but really a subgraph. For instance, let’s suppose now that, with respect to the previous query, we also want to retrieve for instance also the artists that has been influenced by Linkin Park and the genres that Linkin Park do.
 
-```cypher
+```sql
 MATCH 
 	{class:Song, as:s}-isSongInAlbum->{class:Album, as:al, where:(name='Meteora')}-isAlbumOf->{class:Artist, as:lp, where:(name = 'Linkin Park')}-hasLabel->{class:Label, as:l}-isLabelInGroup->{class:Group, as:gr},
 	{as:lp}-doesGenre->{class:Genre, as:gn},
@@ -113,7 +113,7 @@ So in this way we can really write a query in which we really specify a subgraph
 
 - Between all the artists that do the ‘pop punk’ genre, find the top 20 that have the highest number of unique songs that appeared in the BillboardChart
     
-    ```cypher
+    ```sql
     SELECT artist_name, count(*) as num_hits
     FROM (
         MATCH 
@@ -129,7 +129,7 @@ So in this way we can really write a query in which we really specify a subgraph
 
 - Albums with popularity > 90 in which the song that has the highest duration has a duration greater than 4 minutes
     
-    ```cypher
+    ```sql
     SELECT album_name, artist_name, max_duration FROM (
     	SELECT a.id as album_id, a.name as album_name, max(s.duration) as max_duration, ar.name as artist_name FROM (
     		MATCH 
@@ -166,7 +166,7 @@ Let’s suppose now that we want to find:
     
     However, maybe this query is a bit more confusing, because if we use the Match basically we need to have two SELECTs basically. So another equivalent way to achieve this is this one, so by using one single SELECT, which is more compact and allows us to obtain the exact same result.
     
-    ```cypher
+    ```sql
     SELECT name, out("doesGenre").genre_name as genres_list
     FROM Artist 
     WHERE out("doesGenre").size() > 20
@@ -177,7 +177,7 @@ Let’s suppose now that we want to find:
     
     And now that we have the list of genres for each of these artists we can also set a condition over the genres_list, for instance that the list should contain two particular genres as "alternative rock" and "punk", in both the two ways:
     
-    ```cypher
+    ```sql
     
     /*with MATCH:*/
     SELECT name, out("doesGenre").genre_name as genres_list FROM (   
@@ -208,7 +208,7 @@ Let’s suppose we want to find
 
 - All the artists that have done a featuring with ‘Alan Walker’ and in which song
     
-    ```cypher
+    ```sql
     MATCH
          {class: Artist, as: artist, where: (name = 'Alan Walker')}
          .in('isSongOf'){as:s}.out('isSongOf') {as: featured_artist} 
@@ -220,7 +220,7 @@ Let’s suppose we want to find
 
 - All the artists that have done a featuring with ‘Alan Walker’ and in which song, excluding the current artist
     
-    ```cypher
+    ```sql
     MATCH
          {class: Artist, as: artist, where: (name = 'Alan Walker')}
          .both('isSongOf'){as:s}.both('isSongOf'){as: featured_artist,
@@ -235,7 +235,7 @@ But we can use these context variables to perform also more complex filters, let
 
 - Albums that contain songs of artists that have done a featuring with Machine Gun Kelly and that belong to (have published a song under) its same label
     
-    ```cypher
+    ```sql
     /*Browse*/
     
     MATCH 
@@ -245,7 +245,7 @@ But we can use these context variables to perform also more complex filters, let
     RETURN DISTINCT a.name as featured_artist, s.name as song, al.name as album, album_owner.name as album_owner
     ```
     
-    ```cypher
+    ```sql
     /*Graph*/
     
     MATCH 
@@ -266,7 +266,7 @@ Since in our graph database we have edge properties just on the edge of class �
 
 - Find, for each week of the 2018, the song that has been in the #1 position in the Billboard Chart.
     
-    ```cypher
+    ```sql
     MATCH 
     		{class:BillboardWeek, as:bw, where:(week_of_date.format('yyyy') = 2018)}.inE('isSongInBillboardWeek'){as:r, where:(rank=1)}.outV('Song'){as:s}-isSongOf->{class:Artist, as:a}
     RETURN DISTINCT s.name as song_name, bw.week_of_date.format("dd/MM/yyyy") as week_of_date, a.name as artist_name ORDER BY bw.week_of_date
@@ -279,7 +279,7 @@ Since in our graph database we have edge properties just on the edge of class �
 
 - Albums of artists of more than 6M followers that contain songs that appeared in the Billboard Hot 100 at least 10 years after their release
     
-    ```cypher
+    ```sql
     SELECT DISTINCT * FROM (
         MATCH 
             {class:Album, as:al}-isAlbumOf->{class:Artist, as:a, where:(followers >= 500000)},
@@ -296,7 +296,7 @@ Since in our graph database we have edge properties just on the edge of class �
 
 - Average duration of Billboard hits by year from 1990
     
-    ```cypher
+    ```sql
     SELECT year, toHHmmss(avg(toSeconds(duration))) AS avg_duration FROM (
     	MATCH 
     			{class: BillboardWeek, as:bw, where:(week_of_date.format("yyyy")>1990)}-isSongInBillboardWeek-{class:Song, as:s} 
@@ -318,7 +318,7 @@ Since in OrientDB there is no OR option, if we want to perform a query like:
 
 - “Find the Artists that do the ‘alternative rock’ genre or that has a featuring with an artist that does the ‘alternative rock’ genre
     
-    ```cypher
+    ```sql
     SELECT expand($c)
     LET 
       $a = (MATCH {class: Artist, as:a}-doesGenre->{class:Genre, where:(genre_name = 'alternative rock')} RETURN a.name),
@@ -336,7 +336,7 @@ Another situation in which could be useful to use variables is this one, in whic
 
 - Find the shortest path between ‘Dua Lipa’ and ‘Boy In Space’, following just edges whose class is ‘isSongOf’, ‘isAlbumOf’ or ‘isSongInAlbum’
     
-    ```cypher
+    ```sql
     SELECT expand(path) FROM (
       SELECT shortestPath($from, $to, 'BOTH', ['isSongOf', 'isAlbumOf', 'isSongInAlbum']) AS path 
       LET 
@@ -353,7 +353,7 @@ Another situation in which could be useful to use variables is this one, in whic
     
     In order to this OrientDB provides the TRAVERSE function, which allows as the name suggests to traverse our graph database, and in doing this we can specify the type of relationship, together with the direction, and also the level of depth. So the query will look like this:
     
-    ```cypher
+    ```sql
     
     TRAVERSE out("hasInfluenced") FROM (
     		MATCH {class:Artist, as:a, where:(name='The Beatles')} RETURN a
@@ -362,7 +362,7 @@ Another situation in which could be useful to use variables is this one, in whic
     
     as we can see from this query, OrientDB just allows us to specify the MAXDEPTH directly from the TRAVERSE. If we want a specific depth, then we need to do like this: we can do the TRAVERSE with MAXDEPTH 8, so what we matched now are also path with depth less than 8. So if we just want those paths with depth equal to 8, this has to be done with a SELECT over the previous query in which we specify that $depth needs to be exactly 8.
     
-    ```cypher
+    ```sql
     SELECT name FROM (
     		TRAVERSE out("hasInfluenced") FROM (
     				MATCH {class:Artist, as:a, where:(name='The Beatles')} RETURN a
@@ -383,7 +383,7 @@ Variable length pattern matching is not very efficient in OrientDB, as we need t
 
 - Top 10 most popular songs that contain the word ‘cold’, that are of an artist whose name starts with ‘B’
     
-    ```cypher
+    ```sql
     MATCH 
     	{class: Song, as:s, where:(name.toLowerCase() MATCHES '^.*cold.*$')}-isSongOf->{class:Artist, as:a, where:(name MATCHES '^B.*')}
     RETURN s.name as song_name, a.name as artist_name, s.popularity as song_popularity, a.popularity as artist_popularity
@@ -393,7 +393,7 @@ Variable length pattern matching is not very efficient in OrientDB, as we need t
 
 - Labels who belongs to a LabelGroup that contains the first word of their name
     
-    ```cypher
+    ```sql
     MATCH 
     	{class:Label, as:l}-isLabelInGroup->{as:g, where:(group_name MATCHES '^'.append(getFirstWord($matched.l.label_name)).append('.*') AND group_name != $matched.l.label_name)}
     RETURN l.label_name as label_name, g.group_name as group_name
@@ -405,7 +405,7 @@ Variable length pattern matching is not very efficient in OrientDB, as we need t
 
 - Match all the artist whose name starts with the letter ‘M’ whose that has been influenced by artists whose name starts with the letter ‘M’
 
-```cypher
+```sql
 MATCH 
 	{class: Artist, as:a}.out('hasInfluenced'){while: (name MATCHES '^M.*'), where: (name MATCHES  '^M.*' AND $depth > 2) }
 RETURN $pathElements
@@ -421,7 +421,7 @@ For instance, let’s suppose we want to:
 
 - Find either the Songs or Albums whose name contains the words ‘best of’ of artists that has popularity greater or equal than 80:
 
-```cypher
+```sql
 MATCH 
 	{as:n, where:(name.toLowerCase() MATCHES '^.*best of.*$')}.outE(){as:r, where:(@class MATCHES "isSongOf|isAlbumOf")}.inV(){class:Artist, as:a, where:(popularity >= 80)}
 RETURN DISTINCT a.name as artist_name, n.name as song_or_album_name, n.@class as class, a.popularity as artist_popularity ORDER BY artist_popularity DESC
@@ -429,7 +429,7 @@ RETURN DISTINCT a.name as artist_name, n.name as song_or_album_name, n.@class as
 
 This was a simple OR, but we could have write also a more complex regular expression, for instance this one:
 
-```cypher
+```sql
 MATCH 
 	{as:n, where:(name.toLowerCase() MATCHES '^.*best of.*$')}.outE(){as:r, where:(@class MATCHES "^is.*.Of$")}.inV(){class:Artist, as:a, where:(popularity >= 80)}
 RETURN DISTINCT a.name as artist_name, n.name as song_or_album_name, n.@class as node_class, a.popularity as artist_popularity ORDER BY artist_popularity DESC
