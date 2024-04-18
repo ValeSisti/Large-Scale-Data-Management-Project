@@ -4,7 +4,7 @@
 
 - Neo4j
     
-    ```sql
+    ```cypher
     MATCH path = ()-[*10]-() RETURN nodes(path) LIMIT 200
     ```
     
