@@ -19,7 +19,7 @@
 
 - Neo4j
     
-    ```sql
+    ```cypher
     MATCH path = (:Song)-[*..5]->() RETURN nodes(path) LIMIT 200
     ```
     
@@ -28,7 +28,7 @@
 
 - Neo4j
     
-    ```sql
+    ```cypher
     MATCH path = (:Song)-[*3..5]->() RETURN nodes(path) LIMIT 200
     ```
     
@@ -37,7 +37,7 @@
 
 - Neo4j
     
-    ```sql
+    ```cypher
     WITH ['Machine Gun Kelly', 'Halsey'] as names
     MATCH (a:Artist)
     WHERE a.name in names
@@ -52,7 +52,7 @@
 
 - Neo4j
     
-    ```sql
+    ```cypher
     MATCH (a:Artist)-[:IS_SONG_OF]-(s:Song)-[r:IS_SONG_OF]-(a1:Artist)
     WHERE a.name = 'Machine Gun Kelly' and  a.id <> a1.id 
     RETURN s.name,a.name,a1.name, count(r) as cnt ORDER BY cnt DESC
@@ -63,7 +63,7 @@
 
 - Neo4j
     
-    ```sql
+    ```cypher
     MATCH (s:Song)-[r:isSongInBillboardWeek {rank:1}]->(bw:BillboardWeek) RETURN DISTINCT s.name, bw.week_of_date, r.weeks_on_chart ORDER BY bw.week_of_date DESC
     ```
     
@@ -78,7 +78,7 @@
 
 - Neo4j:
     
-    ```sql
+    ```cypher
     MATCH p=(n)-[*]->(n) RETURN nodes(p)
     ```
     
@@ -98,7 +98,7 @@ Find artists of the label “Capitol Records US” that do not make the “pop�
 
 - Neo4j:
     
-    ```sql
+    ```cypher
     MATCH (g:Genre) WHERE g.genre_name = "pop"
     WITH g 
     MATCH (a:Artist)-[:HAS_LABEL]-(l:Label) WHERE l.label_name = "Capitol Records US" AND NOT EXISTS ((a)-[:DOES_GENRE]-(g)) RETURN a
@@ -160,7 +160,7 @@ Find artists of the label “Capitol Records US” that do not make the “pop�
 
 - In OrientDB we don’t have anything as the WITH clause that we have in Neo4j. The WITH is basically used in queries like:
     
-    ```sql
+    ```cypher
     MATCH (a:Artist)<-[:isSongOf]-(s)
     WITH count(*) AS numberOfSongs, a
     WHERE numberOfSongs > 100
@@ -184,7 +184,7 @@ Find artists of the label “Capitol Records US” that do not make the “pop�
 
 - In OrientDB we don’t have the FOREACH. So a query like the following cannot be done in OrientDB:
     
-    ```sql
+    ```cypher
     MATCH p =(begin)-[*]->(end)
     WHERE begin.name='A' AND end.name='D'
     FOREACH (n IN nodes(p) | SET n.marked = TRUE )
