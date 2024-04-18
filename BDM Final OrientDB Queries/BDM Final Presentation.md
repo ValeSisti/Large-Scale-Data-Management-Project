@@ -152,7 +152,7 @@ Let’s suppose now that we want to find:
     
     OrientDB provides a function that is called size(), that allows to get the number of edges of a certain class from a particular vertex and in a particular direction. And we can do this in this way.
     
-    ```cypher
+    ```sql
     
     /*with MATCH (we need to use expand()):*/
     SELECT name, out("doesGenre").genre_name FROM (   
