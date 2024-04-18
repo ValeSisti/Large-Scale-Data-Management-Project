@@ -10,7 +10,7 @@
     
 - OrientDB
     
-    ```sql
+    ```cypher
     SELECT FROM (TRAVERSE * FROM V WHILE $depth <=10 LIMIT 200) WHERE $depth = 10
     ```
     
@@ -69,7 +69,7 @@
     
 - OrientDB
     
-    ```sql
+    ```cypher
     MATCH {class:Song, as:s}.outE('isSongInBillboardWeek'){as:r, where:(rank=1)}.inV('BillboardWeek'){as:bw} RETURN DISTINCT s.name, bw.week_of_date, r.weeks_on_chart order by bw.week_of_date desc
     ```
     
@@ -84,7 +84,7 @@
     
 - In OrientDB → only fixed length paths:
     
-    ```sql
+    ```cypher
     MATCH
          {class: Artist, as: artist}
          .out().out().out() {as: artist} 
@@ -107,7 +107,7 @@ Find artists of the label “Capitol Records US” that do not make the “pop�
 
 - OrientDB:
     
-    ```sql
+    ```cypher
     //La stessa query dovrebbe essere così ma non funziona come previsto
     MATCH
       {class:Artist, as:a}-hasLabel-{class:Label, as:l, where:(label_name = "Capitol Records US")},
@@ -149,7 +149,7 @@ Find artists of the label “Capitol Records US” that do not make the “pop�
     
     ## 9. Neo4j allows to express regular path queries in the following way
     
-    ```sql
+    ```cypher
     MATCH (n)-[:IS_SONG_OF|IS_ALBUM_OF]->(a:Artist)
     WHERE n.name = 'Home'
     RETURN a,n
@@ -170,7 +170,7 @@ Find artists of the label “Capitol Records US” that do not make the “pop�
     
     That in OrientDB can be performed in this way:
     
-    ```sql
+    ```cypher
     SELECT * FROM (
     		MATCH {class:Artist, as:a}<-isSongOf-{as:s}
     		RETURN count(*) AS numberOfSongs, a
