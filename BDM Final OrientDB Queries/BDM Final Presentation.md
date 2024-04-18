@@ -1,4 +1,4 @@
-# BDM Final Presentation (EXPANDED)
+# BDM Final Presentation
 
 # Basic Queries
 
