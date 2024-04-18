@@ -1,0 +1,42 @@
+{
+  "source": {
+    "file": {
+      "path": "E:/OrientDBProject/music_data/label_of.csv"
+    }
+  },
+  "extractor": { "csv": { "separator": ",", "nullValue": "NULL" } },
+  "transformers": [
+    { "merge": { "joinFieldName": "artist_id", "lookup": "Artist.id" } },
+    {
+      "edge": {
+        "class": "LabelOf",
+        "joinFieldName": "label",
+        "lookup": "Label.label",
+        "direction": "out"
+      }
+    },
+    {
+      "field": {
+        "fieldNames": ["label", "artist_id"],
+        "operation": "remove"
+      }
+    }
+  ],
+  "loader": {
+    "orientdb": {
+      "dbURL": "E:/OrientDBProject/orientdb-community-3.2.16/databases/bdm",
+      "dbType": "graph",
+      "dbUser": "root",
+      "dbPassword": "lsdm2022",
+      "serverUser": "root",
+      "serverPassword": "lsdm2022",
+      "tx": false,
+      "batchCommit": 1000,
+      "classes": [
+        { "name": "LabelOf", "extends": "E" },
+        { "name": "Label", "extends": "V" },
+        { "name": "Artist", "extends": "V" }
+      ]
+    }
+  }
+}

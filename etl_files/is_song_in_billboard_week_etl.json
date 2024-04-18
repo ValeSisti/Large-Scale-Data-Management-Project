@@ -1,0 +1,48 @@
+{
+  "source": {
+    "file": {
+      "path": "E:/OrientDBProject/music_data/billboard_hot100_songs.csv"
+    }
+  },
+  "extractor": { "csv": { "separator": ",", "nullValue": "NULL" } },
+  "transformers": [
+    { "merge": { "joinFieldName": "track_id", "lookup": "Song.id" } },
+    {
+      "edge": {
+        "class": "isSongInBillboardWeek",
+        "joinFieldName": "date",
+        "lookup": "BillboardWeek.date",
+        "edgeFields": {
+          "rank": "${input.rank}",
+          "weeks_on_chart": "${input.weeks_on_chart}",
+          "peak_rank": "${input.peak_rank}"
+        },
+        "direction": "out"
+      }
+    },
+    {
+      "field": {
+        "fieldNames": ["track_id", "date", "rank", "peak_rank", "weaks_on_chart"],
+        "operation": "remove"
+      }
+    }
+  ],
+  "loader": {
+    "orientdb": {
+      "dbURL": "E:/OrientDBProject/orientdb-community-3.2.16/databases/bdm",
+      "dbType": "graph",
+      "dbUser": "root",
+      "dbPassword": "lsdm2022",
+      "serverUser": "root",
+      "serverPassword": "lsdm2022",
+      "wal": false,
+      "batchCommit": 1000,
+      "txUseLog": true,
+      "classes": [
+        { "name": "isSongInBillboardWeek", "extends": "E" },
+        { "name": "Song", "extends": "V" },
+        { "name": "BillboardWeek", "extends": "V" }
+      ]
+    }
+  }
+}

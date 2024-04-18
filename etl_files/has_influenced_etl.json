@@ -1,0 +1,42 @@
+{
+    "source": {
+      "file": {
+        "path": "E:/OrientDBProject/music_data/has_influenced.csv"
+      }
+    },
+    "extractor": { "csv": { "separator": ",", "nullValue": "NULL"} },
+    "transformers": [
+      { "merge": { "joinFieldName": "follower_id", "lookup": "Artist.id" } },
+      {
+        "edge": {
+          "class": "hasInfluenced",
+          "joinFieldName": "influencer_id",
+          "lookup": "Artist.id",
+          "direction": "in"
+        }
+      },
+      {
+        "field": {
+          "fieldNames": ["influencer_id", "follower_id"],
+          "operation": "remove"
+        }
+      }
+    ],
+    "loader": {
+      "orientdb": {
+        "dbURL": "E:/OrientDBProject/orientdb-community-3.2.16/databases/bdm",
+        "dbType": "graph",
+        "dbUser": "root",
+        "dbPassword": "lsdm2022",
+        "serverUser": "root",
+        "serverPassword": "lsdm2022",
+        "wal": false,
+        "batchCommit": 1000,
+        "txUseLog": true,
+        "classes": [
+          { "name": "hasInfluenced", "extends": "E" },
+          { "name": "Artist", "extends": "V" }
+        ]
+      }
+    }
+  }

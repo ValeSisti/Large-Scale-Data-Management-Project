@@ -1,0 +1,42 @@
+{
+  "source": {
+    "file": {
+      "path": "E:/OrientDBProject/music_data/label_group.csv"
+    }
+  },
+  "extractor": { "csv": { "separator": ",", "nullValue": "NULL" } },
+  "transformers": [
+    { "merge": { "joinFieldName": "group", "lookup": "Group.group_name" } },
+    {
+      "edge": {
+        "class": "LabelInGroup",
+        "joinFieldName": "label",
+        "lookup": "Label.label_name",
+        "direction": "in"
+      }
+    },
+    {
+      "field": {
+        "fieldNames": ["label", "group"],
+        "operation": "remove"
+      }
+    }
+  ],
+  "loader": {
+    "orientdb": {
+      "dbURL": "E:/OrientDBProject/orientdb-community-3.2.16/databases/bdm",
+      "dbType": "graph",
+      "dbUser": "root",
+      "dbPassword": "lsdm2022",
+      "serverUser": "root",
+      "serverPassword": "lsdm2022",
+      "tx": false,
+      "batchCommit": 1000,
+      "classes": [
+        { "name": "LabelInGroup", "extends": "E" },
+        { "name": "Label", "extends": "V" },
+        { "name": "Group", "extends": "V" }
+      ]
+    }
+  }
+}

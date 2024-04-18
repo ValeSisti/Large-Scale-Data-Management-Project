@@ -1,0 +1,35 @@
+{
+  "source": {
+    "file": {
+      "path": "E:/OrientDBProject/music_data/song_lyrics.csv"
+    }
+  },
+  "extractor": { "csv": { "separator": ",", "nullValue": "NULL" } },
+  "transformers": [
+    { "vertex": { "class": "Lyrics" } },
+    {
+      "edge": {
+        "class": "hasLyrics",
+        "joinFieldName": "track_id",
+        "lookup": "Song.id",
+        "direction": "in"
+      }
+    }
+  ],
+  "loader": {
+    "orientdb": {
+      "dbURL": "E:/OrientDBProject/orientdb-community-3.2.16/databases/bdmDB",
+      "dbType": "graph",
+      "dbUser": "root",
+      "dbPassword": "lsdm2022",
+      "serverUser": "root",
+      "serverPassword": "lsdm2022",
+      "tx": false,
+      "batchCommit": 1000,
+      "classes": [{ "name": "Lyrics", "extends": "V" }],
+      "indexes": [
+        { "class": "Lyrics", "fields": ["lyrics:String"], "type": "UNIQUE" }
+      ]
+    }
+  }
+}

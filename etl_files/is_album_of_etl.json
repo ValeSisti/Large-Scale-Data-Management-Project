@@ -1,0 +1,42 @@
+{
+  "source": {
+    "file": {
+      "path": "E:/OrientDBProject/music_data/is_album_of.csv"
+    }
+  },
+  "extractor": { "csv": { "separator": ",", "nullValue": "NULL" } },
+  "transformers": [
+    { "merge": { "joinFieldName": "artist_id", "lookup": "Artist.id" } },
+    {
+      "edge": {
+        "class": "isAlbumOf",
+        "joinFieldName": "album_id",
+        "lookup": "Album.id",
+        "direction": "out"
+      }
+    },
+    {
+      "field": {
+        "fieldNames": ["album_id", "artist_id"],
+        "operation": "remove"
+      }
+    }
+  ],
+  "loader": {
+    "orientdb": {
+      "dbURL": "E:/OrientDBProject/orientdb-community-3.2.16/databases/bdm",
+      "dbType": "graph",
+      "dbUser": "root",
+      "dbPassword": "lsdm2022",
+      "serverUser": "root",
+      "serverPassword": "lsdm2022",
+      "tx": false,
+      "batchCommit": 1000,
+      "classes": [
+        { "name": "isAlbumOf", "extends": "E" },
+        { "name": "Album", "extends": "V" },
+        { "name": "Artist", "extends": "V" }
+      ]
+    }
+  }
+}
